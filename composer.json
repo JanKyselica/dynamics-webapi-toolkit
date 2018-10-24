@@ -3,6 +3,7 @@
   "description": "Web API toolkit for Microsoft Dynamics 365 and Dynamics CRM",
   "type": "library",
   "license": "MIT",
+  "homepage": "https://github.com/JanKyselica/dynamics-webapi-toolkit",
   "authors": [
     {
       "name": "AlexaCRM",
