@@ -55,6 +55,6 @@ class OnlineSettings extends Settings {
      * @return string
      */
     public function getEndpointURI() {
-        return trim( $this->instanceURI, '/' ) . '/api/data/v' . $this->apiVersion . '/';
+        return trim( $this->instanceURI, '/' ) . '/data/';
     }
 }
