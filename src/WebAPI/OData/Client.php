@@ -201,7 +201,6 @@ class Client {
                 $this->authMiddleware->discardToken();
                 throw new AuthenticationException( 'Dynamics 365 rejected the access token', $e );
             }
-
             $response = json_decode( $e->getResponse()->getBody()->getContents() );
             $this->getLogger()->error( "Failed {$method} {$url}", [ 'payload' => $data, 'responseHeaders' => $e->getResponse()->getHeaders(), 'responseBody' => $response ] );
             throw new ODataException( $response->error, $e );
@@ -336,7 +335,12 @@ class Client {
      * @throws AuthenticationException
      */
     public function getRecord( $entityCollection, $entityId, $queryOptions = null ) {
-        $url = $this->buildQueryURL( sprintf( "%s(%s)", $entityCollection, $entityId ), $queryOptions );
+        $placeholder = "%s(%s)";
+        if(is_string($entityId)) {
+            $placeholder = "%s('%s')";
+        }
+
+        $url = $this->buildQueryURL( sprintf( $placeholder, $entityCollection, $entityId ), $queryOptions );
         $res = $this->doRequest( 'GET', $url, null, $this->buildQueryHeaders( $queryOptions ) );
         $result = json_decode( $res->getBody() );
 

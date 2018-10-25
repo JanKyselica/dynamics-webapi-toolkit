@@ -99,6 +99,7 @@ class EntityMap {
 
         $map->name = $element->getAttribute( 'Name' );
         $map->key = $x->evaluate( 'string(edm:Key/edm:PropertyRef/@Name)', $element );
+
         if ( $map->key === '' ) {
             $map->key = null;
         }

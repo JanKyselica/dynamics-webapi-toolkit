@@ -86,16 +86,14 @@ class Metadata {
         $x->registerNamespace( 'edm', static::NS_EDM );
 
         $metadata->namespace = $x->evaluate( 'string(/edmx:Edmx/edmx:DataServices/edm:Schema/@Namespace)' );
-        $metadata->alias = $x->evaluate( 'string(/edmx:Edmx/edmx:DataServices/edm:Schema/@Alias)' );
-
+//        $metadata->alias = $x->evaluate( 'string(/edmx:Edmx/edmx:DataServices/edm:Schema/@Alias)' );
         // Extract base types first.
-        $baseTypeList = $x->query( "/edmx:Edmx/edmx:DataServices/edm:Schema/edm:EntityType/@BaseType" );
+        $baseTypeList = $x->query( "/edmx:Edmx/edmx:DataServices/edm:Schema/edm:EntityType" );
         $baseTypes = [];
         foreach ( $baseTypeList as $baseTypeElement ) {
             $baseTypes[] = $baseTypeElement->nodeValue;
         }
         $baseTypes = array_map( [ $metadata, 'stripNamespace'], array_unique( $baseTypes ) );
-
         /*
          * Build a plain (non-nested) type dependency hierarchy.
          *
@@ -131,6 +129,7 @@ class Metadata {
         /*
          * As some of the base types may be derived from one another, rebuild them on top of existing base types.
          */
+        $metadata->entityMaps = [];
         foreach ( $metadata->entityMaps as $entityMap ) {
             if ( $entityMap->baseEntity === null ) {
                 continue;
@@ -156,9 +155,10 @@ class Metadata {
             }
             $newMap = EntityMap::createFromDOM( $type, $metadata );
             $metadata->entityMaps[$typeName] = $newMap;
-
-            $baseType = $metadata->entityMaps[$newMap->baseEntity];
-            $metadata->entityMaps[$typeName]->rebuildFromBase( $baseType );
+            if($newMap->baseEntity) {
+                $baseType = $metadata->entityMaps[$newMap->baseEntity];
+                $metadata->entityMaps[$typeName]->rebuildFromBase( $baseType );
+            }
         }
 
         /*
@@ -172,7 +172,6 @@ class Metadata {
             $entityType = $metadata->stripNamespace( $entitySet->getAttribute( 'EntityType' ) );
             $metadata->entitySetMap[$entityType] = $entitySet->getAttribute( 'Name' );
         }
-
         return $metadata;
     }
 
@@ -222,5 +221,4 @@ class Metadata {
 
         return $typeName;
     }
-
 }
