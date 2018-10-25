@@ -201,9 +201,16 @@ class Client {
                 $this->authMiddleware->discardToken();
                 throw new AuthenticationException( 'Dynamics 365 rejected the access token', $e );
             }
-            $response = json_decode( $e->getResponse()->getBody()->getContents() );
-            $this->getLogger()->error( "Failed {$method} {$url}", [ 'payload' => $data, 'responseHeaders' => $e->getResponse()->getHeaders(), 'responseBody' => $response ] );
-            throw new ODataException( $response->error, $e );
+            $response = (string) $e->getResponse()->getBody();
+            $this->getLogger()->error(
+                "Failed {$method} {$url}",
+                [
+                    'payload' => $data,
+                    'responseHeaders' => $e->getResponse()->getHeaders(),
+                    'responseBody' => $response,
+                    'responseCode' => $e->getResponse()->getStatusCode()
+                ] );
+            throw new ODataException( $response, $e );
         } catch ( GuzzleException $e ) {
             $this->getLogger()->error( "Guzzle failed to process the request {$method} {$url}", [ 'message' => $e->getMessage() ] );
             throw new ODataException( (object)[ 'message' => $e->getMessage() ], $e );

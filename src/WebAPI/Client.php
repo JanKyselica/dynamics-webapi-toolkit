@@ -221,6 +221,9 @@ class Client implements IOrganizationService {
         try {
             $response = $this->client->getRecord( $collectionName, $entityId, $options );
         } catch ( ODataException $e ) {
+            if ($e->getInnerException()->getResponse()->getStatusCode() === 404) {
+                throw new EntityNotFoundException('Entity not found', $e);
+            }
             throw new Exception( 'Retrieve request failed: ' . $e->getMessage(), $e );
         }
 
