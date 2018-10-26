@@ -22,6 +22,7 @@
 namespace AlexaCRM\WebAPI;
 
 use AlexaCRM\WebAPI\OData\AuthenticationException;
+use AlexaCRM\WebAPI\OData\EntityNotFoundException;
 use AlexaCRM\WebAPI\OData\InaccessibleMetadataException;
 use AlexaCRM\WebAPI\OData\ODataException;
 use AlexaCRM\WebAPI\OData\EntityNotSupportedException;
@@ -108,6 +109,9 @@ class Client implements IOrganizationService {
         try {
             $responseId = $this->client->create( $collectionName, $translatedData );
         } catch ( ODataException $e ) {
+            if($e->getInnerException()->getResponse()) {
+                dump($e->getInnerException()->getResponse());
+            }
             throw new Exception( 'Create request failed: ' . $e->getMessage(), $e );
         }
 
@@ -192,6 +196,7 @@ class Client implements IOrganizationService {
      * @throws InaccessibleMetadataException
      * @throws AuthenticationException
      * @throws EntityNotSupportedException
+     * @throws EntityNotFoundException
      * @throws Exception
      */
     public function Retrieve( string $entityName, $entityId, ColumnSet $columnSet ) : Entity {
@@ -222,6 +227,7 @@ class Client implements IOrganizationService {
             $response = $this->client->getRecord( $collectionName, $entityId, $options );
         } catch ( ODataException $e ) {
             if ($e->getInnerException()->getResponse()->getStatusCode() === 404) {
+                dump($e->getInnerException()->getResponse()->getStatusCode(), $entityId);
                 throw new EntityNotFoundException('Entity not found', $e);
             }
             throw new Exception( 'Retrieve request failed: ' . $e->getMessage(), $e );

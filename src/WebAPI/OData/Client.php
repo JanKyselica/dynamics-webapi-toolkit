@@ -202,14 +202,15 @@ class Client {
                 throw new AuthenticationException( 'Dynamics 365 rejected the access token', $e );
             }
             $response = (string) $e->getResponse()->getBody();
-            $this->getLogger()->error(
-                "Failed {$method} {$url}",
-                [
-                    'payload' => $data,
-                    'responseHeaders' => $e->getResponse()->getHeaders(),
-                    'responseBody' => $response,
-                    'responseCode' => $e->getResponse()->getStatusCode()
-                ] );
+            dump($e->getRequest());
+//            $this->getLogger()->error(
+//                "Failed {$method} {$url}",
+//                [
+//                    'payload' => $data,
+//                    'responseHeaders' => $e->getResponse()->getHeaders(),
+//                    'responseBody' => $response,
+//                    'responseCode' => $e->getResponse()->getStatusCode()
+//                ] );
             throw new ODataException( $response, $e );
         } catch ( GuzzleException $e ) {
             $this->getLogger()->error( "Guzzle failed to process the request {$method} {$url}", [ 'message' => $e->getMessage() ] );
@@ -344,11 +345,12 @@ class Client {
     public function getRecord( $entityCollection, $entityId, $queryOptions = null ) {
         $placeholder = "%s(%s)";
         if(is_string($entityId)) {
-            $placeholder = "%s('%s')";
+//            $placeholder = "%s('%s')";
         }
 
         $url = $this->buildQueryURL( sprintf( $placeholder, $entityCollection, $entityId ), $queryOptions );
         $res = $this->doRequest( 'GET', $url, null, $this->buildQueryHeaders( $queryOptions ) );
+//        dump($res);
         $result = json_decode( $res->getBody() );
 
         return $result;
@@ -381,11 +383,14 @@ class Client {
     public function create( $entityCollection, $data ) {
         $url = sprintf( '%s%s', $this->settings->getEndpointURI(), $entityCollection );
         $res = $this->doRequest( 'POST', $url, $data );
-        $id = $res->getHeader( 'OData-EntityId' )[0];
-        $id = explode( '(', $id )[1];
-        $id = str_replace( ')', '', $id );
+//        dump($res);
+//        $id = $res->getHeader( 'OData-EntityId' )[0];
+//        $id = explode( '(', $id )[1];
+//        $id = str_replace( ')', '', $id );
 
-        return $id;
+        return $res;
+//        ProductColorGroupLines(ProductColorGroupId='FC_COLOR',ProductColorId='2558')
+//        ProductColorGroupLines(ProductColorGroupId='FC_COLOR',ProductColorId='2558')
     }
 
     /**

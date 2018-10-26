@@ -55,9 +55,11 @@ class SerializationHelper {
      * @throws OData\InaccessibleMetadataException
      */
     public function serializeEntity( Entity $entity ) {
+//        dump($entity);
         $metadata = $this->client->getMetadata();
 
         $entityMap = $metadata->getEntityMap( $entity->LogicalName );
+//        dump($entityMap);
         $outboundMap = $entityMap->outboundMap;
 
         $touchedFields = [];
@@ -69,28 +71,29 @@ class SerializationHelper {
 
         /*
          */
-        foreach ( $touchedFields as $field => $value ) {
-            $outboundMapping = $outboundMap[$field];
-            if ( is_string( $outboundMapping ) ) {
-                $translatedData[$outboundMapping] = $value;
-                continue; // Simple value mapping found.
-            }
-
-            if ( is_array( $outboundMapping ) && ( $value instanceof EntityReference || $value instanceof Entity ) ) {
-                $logicalName = $value->LogicalName;
-                if ( !array_key_exists( $logicalName, $outboundMapping) ) {
-                    $this->client->getLogger()->error( "{$entity->LogicalName}[{$field}] lookup supplied with an unsupported entity type `{$logicalName}`" );
-                    continue;
-                }
-
-                $fieldCollectionName = $metadata->getEntitySetName( $logicalName );
-
-                $translatedData[$outboundMapping[$logicalName] . '@odata.bind'] = sprintf( '/%s(%s)', $fieldCollectionName, $value->Id );
-            }
-
-            $this->client->getLogger()->warning( "No outbound attribute mapping found for {$entity->LogicalName}[{$field}]" );
-        }
-
+//        foreach ( $touchedFields as $field => $value ) {
+//            $outboundMapping = $outboundMap[$field];
+//            if ( is_string( $outboundMapping ) ) {
+//                $translatedData[$outboundMapping] = $value;
+//                continue; // Simple value mapping found.
+//            }
+//
+//            if ( is_array( $outboundMapping ) && ( $value instanceof EntityReference || $value instanceof Entity ) ) {
+//                $logicalName = $value->LogicalName;
+//                if ( !array_key_exists( $logicalName, $outboundMapping) ) {
+//                    $this->client->getLogger()->error( "{$entity->LogicalName}[{$field}] lookup supplied with an unsupported entity type `{$logicalName}`" );
+//                    continue;
+//                }
+//
+//                $fieldCollectionName = $metadata->getEntitySetName( $logicalName );
+//
+//                $translatedData[$outboundMapping[$logicalName] . '@odata.bind'] = sprintf( '/%s(%s)', $fieldCollectionName, $value->Id );
+//            }
+//
+//            $this->client->getLogger()->warning( "No outbound attribute mapping found for {$entity->LogicalName}[{$field}]" );
+//        }
+        $translatedData = $entity->Attributes;
+//        dump($translatedData);
         return $translatedData;
     }
 

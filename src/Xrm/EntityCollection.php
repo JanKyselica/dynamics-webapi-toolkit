@@ -106,4 +106,19 @@ class EntityCollection implements \Iterator {
         reset( $this->Entities );
     }
 
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->Entities);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return $this->count() === 0;
+    }
 }

@@ -73,7 +73,7 @@ class ODataException extends Exception {
                 $uri,
                 $statusCode,
                 ( $guzzleResponse !== null )? $guzzleResponse->getReasonPhrase() : '',
-                $response->message
+                $response
             );
         }
 
